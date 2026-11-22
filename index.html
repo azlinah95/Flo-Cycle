@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cycle">
+<title>Cycle</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{color-scheme:light dark;--bg:#f5f2fa;--card:#fff;--ink:#2b2442;--mute:#7b7494;--line:#e4def0;--per:#c9365f;--fer:#2f9e98;--acc:#6c4fc2;--on:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#15112a;--card:#201b3a;--ink:#efeaff;--mute:#a49cc4;--line:#322b52;--per:#ef5f88;--fer:#4cc3bc;--acc:#a58cf0;--on:#1a1030}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,"SF Pro Rounded","Avenir Next","Segoe UI",system-ui,sans-serif}
+body{padding:env(safe-area-inset-top,0) 0 calc(76px + env(safe-area-inset-bottom,0))}
+main{max-width:460px;margin:0 auto;padding:18px 18px 8px}
+h1{font-size:20px;font-weight:600;margin:0 0 2px}
+.sub{color:var(--mute);font-size:13px;margin:0 0 18px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,.d:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ringwrap{position:relative;width:272px;height:272px;margin:6px auto 4px}
+.ringwrap svg{width:100%;height:100%}
+.mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.mid small{color:var(--mute);font-size:13px}
+.mid b{font-size:64px;font-weight:300;line-height:1.05;letter-spacing:-2px}
+.status{text-align:center;font-size:19px;font-weight:600;margin:6px 0 2px}
+.note{text-align:center;color:var(--mute);font-size:14px;margin:0 0 16px;min-height:20px}
+.cta{display:block;width:100%;border:0;border-radius:16px;padding:15px;background:var(--per);color:#fff;font-weight:600;font-size:16px}
+.cta.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.stat{background:var(--card);border-radius:14px;padding:12px 10px;text-align:center}
+.stat b{display:block;font-size:16px;font-weight:600}
+.stat span{font-size:12px;color:var(--mute)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute);margin:12px 2px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mh button{border:0;background:var(--card);width:38px;height:38px;border-radius:50%;font-size:18px}
+.mh strong{font-size:17px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.grid .w{font-size:12px;color:var(--mute);padding:4px 0}
+.d{aspect-ratio:1;border:2px solid transparent;border-radius:50%;background:none;font-size:15px;position:relative;padding:0}
+.d.p{background:var(--per);color:#fff;font-weight:600}
+.d.pp{border:2px dashed var(--per)}
+.d.f{background:color-mix(in srgb,var(--fer) 22%,transparent)}
+.d.ov{border:2px solid var(--fer);background:color-mix(in srgb,var(--fer) 22%,transparent);font-weight:600}
+.d.t{text-decoration:underline;text-underline-offset:4px;font-weight:700}
+.d.h::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--acc)}
+.d.p.h::after{background:#fff}
+.card{background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 8px}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.row:last-child{border:0}
+.row span:last-child{color:var(--mute)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button,.btns label{border:1.5px solid var(--line);background:none;border-radius:12px;padding:10px 14px;font-size:14px}
+.btns .danger{color:var(--per)}
+.fine{font-size:12px;color:var(--mute);line-height:1.5;margin:14px 2px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0)}
+nav button{flex:1;border:0;background:none;padding:14px 0;font-size:14px;color:var(--mute)}
+nav button[aria-selected=true]{color:var(--acc);font-weight:700}
+dialog{border:0;border-radius:22px 22px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0));width:100%;max-width:460px;margin:auto auto 0;background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(10,5,25,.5)}
+dialog h3{margin:0 0 12px;font-size:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+.chip{border:1.5px solid var(--line);background:none;border-radius:999px;padding:8px 14px;font-size:14px}
+.chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--on)}
+.lbl{font-size:13px;color:var(--mute)}
+textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:inherit;font:inherit;padding:10px;min-height:64px;margin:6px 0 14px;resize:vertical}
+@media(prefers-reduced-motion:no-preference){.ringwrap circle.cur{transition:all .4s}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav role="tablist" aria-label="Sections">
+  <button role="tab" data-v="today">Today</button>
+  <button role="tab" data-v="cal">Calendar</button>
+  <button role="tab" data-v="hist">History</button>
+</nav>
+<dialog id="dlg"></dialog>
+
+<script>
+const KEY='cycle-tracker-v1', DAY=864e5;
+let S={days:{}};
+try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&r.days)S=r}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const pad=n=>String(n).padStart(2,'0');
+const num=k=>{const [y,m,d]=k.split('-').map(Number);return Math.round(Date.UTC(y,m-1,d)/DAY)};
+const key=n=>{const d=new Date(n*DAY);return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate())};
+const now=new Date();
+const T=num(now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate()));
+const fmt=(n,o)=>new Date(n*DAY).toLocaleDateString(undefined,Object.assign({timeZone:'UTC'},o));
+const short={month:'short',day:'numeric'};
+const isP=n=>!!(S.days[key(n)]&&S.days[key(n)].p);
+let view='today', cm=new Date(Date.UTC(now.getFullYear(),now.getMonth(),1));
+
+function analyze(){
+  const ns=Object.keys(S.days).filter(k=>S.days[k].p).map(num).sort((a,b)=>a-b);
+  const per=[];
+  ns.forEach(n=>{const l=per[per.length-1];if(l&&n-l.end===1)l.end=n;else per.push({start:n,end:n})});
+  const lens=[];
+  for(let i=1;i<per.length;i++){const g=per[i].start-per[i-1].start;if(g>=15&&g<=60)lens.push(g)}
+  const mean=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;
+  const avg=mean(lens.slice(-6))||28;
+  const lastP=per[per.length-1];
+  const finished=per.filter(p=>p!==lastP||T-p.end>1).map(p=>p.end-p.start+1).filter(l=>l<=10);
+  const plen=Math.min(10,Math.max(2,mean(finished.slice(-6))||7));
+  const pred={};let next=null;
+  if(lastP){
+    for(let k=1;k<=7;k++){
+      const s=lastP.start+k*avg;if(k===1)next=s;
+      const ov=s-14;
+      for(let i=-5;i<=1;i++)pred[ov+i]='f';
+      pred[ov]='ov';
+      for(let i=0;i<plen;i++)pred[s+i]='pp';
+    }
+  }
+  return{per,lens,avg,plen,pred,next,lastP};
+}
+
+function ring(A,cd){
+  const L=Math.max(A.avg,cd||A.avg),R=112,C=2*Math.PI*R,cx=136,cy=136;
+  const arc=(from,len,col,w)=>`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${col}" stroke-width="${w}" pathLength="360" stroke-dasharray="${len/L*360} ${360}" stroke-dashoffset="${-(from-1)/L*360}" transform="rotate(-90 ${cx} ${cy})"/>`;
+  let s=`<svg viewBox="0 0 272 272" aria-hidden="true"><circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--line)" stroke-width="14"/>`;
+  if(A.lastP){
+    const ov=A.avg-13;
+    s+=arc(ov-5,7,'color-mix(in srgb,var(--fer) 45%,transparent)',14);
+    s+=arc(1,A.plen,'var(--per)',14);
+    if(cd){const a=((cd-.5)/L)*2*Math.PI-Math.PI/2;
+      s+=`<circle class="cur" cx="${cx+R*Math.cos(a)}" cy="${cy+R*Math.sin(a)}" r="13" fill="var(--card)" stroke="var(--acc)" stroke-width="5"/>`}
+  }
+  return s+'</svg>';
+}
+
+function today(A){
+  const cd=A.lastP?T-A.lastP.start+1:0;
+  let st='Welcome',nt='Log the first day of your last period to start predictions.',big='–';
+  if(A.lastP){
+    big=cd;
+    const late=A.next!==null&&T>A.next&&!isP(T)?T-A.next:0;
+    if(isP(T)){let s=T;while(isP(s-1))s--;st=`Period day ${T-s+1}`;nt=`Cycle usually lasts about ${A.avg} days.`}
+    else if(late>0){st=`Period ${late} day${late>1?'s':''} late`;nt=`Expected ${fmt(A.next,short)}. Log it when it starts.`}
+    else if(A.pred[T]==='ov'){st='Ovulation day likely';nt='Peak fertility is estimated for today.'}
+    else if(A.pred[T]==='f'){st='Fertile window';nt=`Next period expected ${fmt(A.next,short)}.`}
+    else{const d=A.next-T;st=`Period in ${d} day${d===1?'':'s'}`;nt=`Expected around ${fmt(A.next,{weekday:'short',month:'short',day:'numeric'})}.`}
+  }
+  let btn,act;
+  if(isP(T)){btn='Period ended yesterday';act='end'}
+  else if(isP(T-1)){btn='Period still going today';act='cont'}
+  else{btn='Period started today';act='start'}
+  const ovd=A.next?fmt(A.next-14,short):'–';
+  return `<h1>Cycle</h1><p class="sub">Private. Stored only on this device.</p>
+  <div class="ringwrap">${ring(A,cd)}<div class="mid"><small>Cycle day</small><b>${big}</b></div></div>
+  <div class="status">${st}</div><p class="note">${nt}</p>
+  <button class="cta" data-act="${act}">${btn}</button>
+  <div class="stats"><div class="stat"><b>${A.next?fmt(A.next,short):'–'}</b><span>Next period</span></div>
+  <div class="stat"><b>${ovd}</b><span>Ovulation</span></div>
+  <div class="stat"><b>${A.avg} d</b><span>Avg cycle</span></div></div>
+  <p class="fine">Predictions are estimates from your logged cycles and get better with each one. They are not medical advice or a method of contraception.</p>`;
+}
+
+function cal(A){
+  const y=cm.getUTCFullYear(),m=cm.getUTCMonth();
+  const first=Math.round(Date.UTC(y,m,1)/DAY),dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  const off=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7;
+  let g=['M','T','W','T','F','S','S'].map(d=>`<div class="w">${d}</div>`).join('')+'<div></div>'.repeat(off);
+  for(let i=0;i<dim;i++){
+    const n=first+i,r=S.days[key(n)];
+    let c='d';
+    if(r&&r.p)c+=' p';else if(n>=T&&A.pred[n])c+=' '+A.pred[n];
+    if(n===T)c+=' t';
+    if(r&&((r.sym&&r.sym.length)||r.note||r.flow))c+=' h';
+    g+=`<button class="${c}" data-n="${n}" aria-label="${fmt(n,{dateStyle:'full'})}">${i+1}</button>`;
+  }
+  return `<div class="mh"><button data-m="-1" aria-label="Previous month">‹</button><strong>${cm.toLocaleDateString(undefined,{month:'long',year:'numeric',timeZone:'UTC'})}</strong><button data-m="1" aria-label="Next month">›</button></div>
+  <div class="grid">${g}</div>
+  <div class="legend"><span><i style="background:var(--per)"></i>Period</span><span><i style="border:2px dashed var(--per)"></i>Predicted</span><span><i style="background:color-mix(in srgb,var(--fer) 30%,transparent)"></i>Fertile</span><span><i style="border:2px solid var(--fer)"></i>Ovulation</span></div>
+  <p class="fine">Starting a period marks 7 days automatically. Tap a day to add or remove period days, flow, symptoms and notes. Past days can be edited any time.</p>`;
+}
+
+function hist(A){
+  const rows=A.per.slice().reverse().slice(0,12).map((p,i,arr)=>{
+    const prevStart=A.per[A.per.length-1-i-1];
+    const len=prevStart?p.start-prevStart.start:null;
+    return `<div class="row"><span>${fmt(p.start,short)} · ${p.end-p.start+1} day${p.end>p.start?'s':''}</span><span>${len?len+'-day cycle':'first logged'}</span></div>`}).join('');
+  const lo=A.lens.length?Math.min(...A.lens)+'–'+Math.max(...A.lens)+' d':'–';
+  return `<h1>History</h1><p class="sub">Your cycles at a glance.</p>
+  <div class="stats" style="margin:0 0 14px"><div class="stat"><b>${A.per.length}</b><span>Periods logged</span></div><div class="stat"><b>${A.plen} d</b><span>Avg period</span></div><div class="stat"><b>${lo}</b><span>Cycle range</span></div></div>
+  <div class="card"><h2>Recent periods</h2>${rows||'<span class="lbl">Nothing logged yet.</span>'}</div>
+  <div class="card"><h2>Backup</h2><p class="lbl" style="margin:0 0 10px">Your data lives in this browser. Export a copy now and then so it is never lost.</p>
+  <div class="btns"><button data-act="export">Export backup</button><label>Import backup<input type="file" accept="application/json" id="imp" hidden></label><button class="danger" data-act="wipe">Erase all</button></div></div>`;
+}
+
+function render(){
+  const A=analyze();
+  $app.innerHTML=view==='today'?today(A):view==='cal'?cal(A):hist(A);
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===view));
+}
+const $app=document.getElementById('app'),dlg=document.getElementById('dlg');
+
+const SYM=['Cramps','Headache','Bloating','Tender breasts','Fatigue','Mood swings','Spotting','Acne'];
+const FLOW=['Light','Medium','Heavy'];
+const PLEN=7;
+function startPeriod(n){for(let i=0;i<PLEN;i++)rec(key(n+i)).p=true}
+function rec(k){return S.days[k]||(S.days[k]={})}
+function tidy(k){const r=S.days[k];if(r&&!r.p&&!r.flow&&!(r.sym&&r.sym.length)&&!r.note)delete S.days[k]}
+function openDay(n){
+  const k=key(n);
+  const draw=()=>{
+    const r=S.days[k]||{};
+    dlg.innerHTML=`<h3>${fmt(n,{weekday:'long',month:'long',day:'numeric'})}</h3>
+    <button class="cta ${r.p?'':'alt'}" data-tp>${r.p?'Period day logged. Tap to remove':'Mark as period day'}</button>
+    ${r.p?`<div class="lbl" style="margin-top:14px">Flow</div><div class="chips">${FLOW.map(f=>`<button class="chip" data-f="${f}" aria-pressed="${r.flow===f}">${f}</button>`).join('')}</div>`:'<div style="height:14px"></div>'}
+    <div class="lbl">Symptoms</div><div class="chips">${SYM.map(s=>`<button class="chip" data-s="${s}" aria-pressed="${!!(r.sym&&r.sym.includes(s))}">${s}</button>`).join('')}</div>
+    <label class="lbl" for="nt">Note</label><textarea id="nt">${(r.note||'').replace(/</g,'&lt;')}</textarea>
+    <button class="cta" data-done>Done</button>`;
+  };
+  draw();
+  dlg.onclick=e=>{
+    const b=e.target.closest('button');if(!b)return;
+    if('tp' in b.dataset){const r=rec(k);if(!r.p&&!isP(n-1)&&!isP(n+1)){startPeriod(n)}else{r.p=!r.p;if(!r.p)delete r.flow;tidy(k)}save();draw();render()}
+    else if(b.dataset.f){const r=rec(k);r.flow=r.flow===b.dataset.f?undefined:b.dataset.f;if(!r.flow)delete r.flow;save();draw();render()}
+    else if(b.dataset.s){const r=rec(k);r.sym=r.sym||[];const i=r.sym.indexOf(b.dataset.s);i<0?r.sym.push(b.dataset.s):r.sym.splice(i,1);tidy(k);save();draw();render()}
+    else if('done' in b.dataset){dlg.close()}
+  };
+  dlg.oninput=e=>{if(e.target.id==='nt'){const r=rec(k);r.note=e.target.value.trim();if(!r.note)delete r.note;tidy(k);save()}};
+  dlg.onclose=()=>render();
+  dlg.showModal();
+}
+
+document.querySelector('nav').onclick=e=>{const b=e.target.closest('button');if(b){view=b.dataset.v;render();scrollTo(0,0)}};
+$app.onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.n)return openDay(+b.dataset.n);
+  if(b.dataset.m){cm=new Date(Date.UTC(cm.getUTCFullYear(),cm.getUTCMonth()+ +b.dataset.m,1));return render()}
+  const a=b.dataset.act;
+  if(a==='start'){startPeriod(T);save();render()}
+  else if(a==='cont'){rec(key(T)).p=true;save();render()}
+  else if(a==='end'){for(let n=T;isP(n);n++){const k=key(n);delete S.days[k].p;delete S.days[k].flow;tidy(k)}save();render()}
+  else if(a==='export'){
+    const u=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));
+    const l=document.createElement('a');l.href=u;l.download='cycle-backup.json';l.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+  }
+  else if(a==='wipe'&&confirm('Erase every logged day on this device? This cannot be undone.')){S={days:{}};save();render()}
+};
+$app.onchange=e=>{
+  if(e.target.id!=='imp'||!e.target.files[0])return;
+  const fr=new FileReader();
+  fr.onload=()=>{try{const d=JSON.parse(fr.result);if(!d||typeof d.days!=='object')throw 0;S={days:d.days};save();render()}catch(x){alert('That file is not a valid Cycle backup.')}};
+  fr.readAsText(e.target.files[0]);
+};
+render();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
