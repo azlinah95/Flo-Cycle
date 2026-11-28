@@ -1,4 +1,4 @@
-const CACHE = 'cycle-v3';
+const CACHE = 'cycle-v7';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));

@@ -10,8 +10,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
-:root{color-scheme:light dark;--bg:#f5f2fa;--card:#fff;--ink:#2b2442;--mute:#7b7494;--line:#e4def0;--per:#c9365f;--fer:#2f9e98;--acc:#6c4fc2}
-@media(prefers-color-scheme:dark){:root{--bg:#15112a;--card:#201b3a;--ink:#efeaff;--mute:#a49cc4;--line:#322b52;--per:#ef5f88;--fer:#4cc3bc;--acc:#a58cf0}}
+:root{color-scheme:light dark;--bg:#f5f2fa;--card:#fff;--ink:#2b2442;--mute:#7b7494;--line:#e4def0;--per:#c9365f;--fer:#2f9e98;--acc:#6c4fc2;--grn:#2a8f48}
+@media(prefers-color-scheme:dark){:root{--bg:#15112a;--card:#201b3a;--ink:#efeaff;--mute:#a49cc4;--line:#322b52;--per:#ef5f88;--fer:#4cc3bc;--acc:#a58cf0;--grn:#5fd38a}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,"SF Pro Rounded","Avenir Next","Segoe UI",system-ui,sans-serif}
 body{padding:env(safe-area-inset-top,0) 0 calc(76px + env(safe-area-inset-bottom,0))}
@@ -40,8 +40,11 @@ button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
 .grid .w{font-size:12px;color:var(--mute);padding:4px 0}
 .d{aspect-ratio:1;border:2px solid transparent;border-radius:50%;background:none;font-size:15px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
-.d small{font-size:9px;opacity:.6;margin-top:1px}
-.d.p{background:var(--per);color:#fff;font-weight:600}
+.d small{font-size:9px;opacity:.65;line-height:1.1}
+.hj{text-align:center;color:var(--mute);font-size:13px;margin:-4px 0 12px}
+.d.p{background:color-mix(in srgb,var(--per) 16%,transparent);border-color:var(--per);font-weight:600}
+.d small.cp{color:var(--per);opacity:1;font-weight:700}
+.d small.cg{color:var(--grn);opacity:1;font-weight:700}
 .d.pp{border:2px dashed var(--per)}
 .d.f{background:color-mix(in srgb,var(--fer) 22%,transparent)}
 .d.ov{border:2px solid var(--fer);background:color-mix(in srgb,var(--fer) 22%,transparent);font-weight:600}
@@ -64,8 +67,7 @@ nav button[aria-selected=true]{color:var(--acc);font-weight:700}
 <body>
 <main id="app"></main>
 <nav role="tablist" aria-label="Sections">
-  <button role="tab" data-v="today">Today</button>
-  <button role="tab" data-v="cal">Calendar</button>
+  <button role="tab" data-v="today">Cycle</button>
   <button role="tab" data-v="hist">History</button>
 </nav>
 
@@ -81,6 +83,8 @@ const now=new Date();
 const T=num(now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate()));
 const fmt=(n,o)=>new Date(n*DAY).toLocaleDateString(undefined,Object.assign({timeZone:'UTC'},o));
 const short={month:'short',day:'numeric'};
+let HF;try{HF=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'})}catch(e){}
+const hj=n=>{const o={};if(HF)HF.formatToParts(new Date(n*DAY)).forEach(p=>{o[p.type==='relatedYear'?'year':p.type]=p.value});return o};
 const isP=n=>!!(S.days[key(n)]&&S.days[key(n)].p);
 const startPeriod=n=>{for(let i=0;i<PLEN;i++)S.days[key(n+i)]={p:true}};
 const $app=document.getElementById('app');
@@ -145,8 +149,7 @@ function today(A){
   <button class="cta" data-act="${act}">${btn}</button>
   <div class="stats"><div class="stat"><b>${A.next?fmt(A.next,short):'–'}</b><span>Next period</span></div>
   <div class="stat"><b>${A.next?fmt(A.next-14,short):'–'}</b><span>Ovulation</span></div>
-  <div class="stat"><b>${A.avg} d</b><span>Avg cycle</span></div></div>
-  <p class="fine">Predictions are estimates from your logged cycles and improve with each one. They are not medical advice or a method of contraception.</p>`;
+  <div class="stat"><b>${A.avg} d</b><span>Avg cycle</span></div></div>`;
 }
 
 function cal(A){
@@ -160,12 +163,15 @@ function cal(A){
     if(isP(n))c+=' p';else if(n>=T&&A.pred[n])c+=' '+A.pred[n];
     if(n===T)c+=' t';
     let s=-1;for(const x of A.starts)if(x<=n)s=x;
-    g+=`<button class="${c}" data-n="${n}" aria-label="${fmt(n,{dateStyle:'full'})}"><span>${i+1}</span><small>${s>=0?n-s+1:'&nbsp;'}</small></button>`;
+    g+=`<button class="${c}" data-n="${n}" aria-label="${fmt(n,{dateStyle:'full'})}"><small>${hj(n).day||'&nbsp;'}</small><span>${i+1}</span><small class="${isP(n)||(n>=T&&A.pred[n]==='pp')?'cp':'cg'}">${s>=0?n-s+1:'&nbsp;'}</small></button>`;
   }
+  const h1=hj(first),h2=hj(first+dim-1);
+  const hr=h1.month?(h1.month===h2.month?`${h1.month} ${h1.year}`:h1.year===h2.year?`${h1.month} – ${h2.month} ${h1.year}`:`${h1.month} ${h1.year} – ${h2.month} ${h2.year}`)+' AH':'';
   return `<div class="mh"><button data-m="-1" aria-label="Previous month">‹</button><strong>${cm.toLocaleDateString(undefined,{month:'long',year:'numeric',timeZone:'UTC'})}</strong><button data-m="1" aria-label="Next month">›</button></div>
+  <div class="hj">${hr}</div>
   <div class="grid">${g}</div>
-  <div class="legend"><span><i style="background:var(--per)"></i>Period</span><span><i style="border:2px dashed var(--per)"></i>Predicted</span><span><i style="background:color-mix(in srgb,var(--fer) 30%,transparent)"></i>Fertile</span><span><i style="border:2px solid var(--fer)"></i>Ovulation</span></div>
-  <p class="fine">The small number under each date is the day of your cycle. Tap a day to start a period (7 days are marked) or to add or remove a single day.</p>`;
+  <div class="legend"><span><i style="background:color-mix(in srgb,var(--per) 16%,transparent);border:2px solid var(--per)"></i>Period</span><span><i style="border:2px dashed var(--per)"></i>Predicted</span><span><i style="background:color-mix(in srgb,var(--fer) 30%,transparent)"></i>Fertile</span><span><i style="border:2px solid var(--fer)"></i>Ovulation</span><span><b style="color:var(--per)">3</b> period day</span><span><b style="color:var(--grn)">12</b> cycle day</span></div>
+  <p class="fine">Small number above each date is the Hijri day. The one below is your cycle day: red during your period, green after it. Tap a day to start a period (7 days are marked) or to add or remove a single day.</p>`;
 }
 
 function hist(A){
@@ -183,7 +189,7 @@ function hist(A){
 
 function render(){
   const A=analyze();
-  $app.innerHTML=view==='today'?today(A):view==='cal'?cal(A):hist(A);
+  $app.innerHTML=view==='today'?today(A)+'<div style="margin-top:28px">'+cal(A)+'</div><p class="fine">Predictions are estimates from your logged cycles and improve with each one. They are not medical advice or a method of contraception.</p>':hist(A);
   document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===view));
 }
 
